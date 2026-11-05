@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
 import { Roboto_Flex } from "next/font/google";
+
+import { PageIntro } from "@/components/page-intro";
+import { introScript } from "@/lib/page-intro";
+
 import "./globals.css";
 
 const robotoFlex = Roboto_Flex({
@@ -19,8 +23,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       data-scroll-behavior="smooth"
       className={`${robotoFlex.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: introScript }} />
+      </head>
+      <body className="min-h-full flex flex-col">
+        <PageIntro />
+        {children}
+      </body>
     </html>
   );
 }

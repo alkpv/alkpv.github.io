@@ -151,18 +151,19 @@
 }
 
 @layer components {
-  /* Children fade and rise in one after another. */
-  .stagger > * {
+  /* Children fade and rise in one after another, the first time a visitor
+     sees a page. See lib/page-intro.ts. */
+  html[data-intro] .stagger > * {
     animation: stagger-in 0.5s ease both;
   }
-  .stagger > :nth-child(2) { animation-delay: 0.05s; }
-  .stagger > :nth-child(3) { animation-delay: 0.1s; }
-  .stagger > :nth-child(4) { animation-delay: 0.15s; }
-  .stagger > :nth-child(5) { animation-delay: 0.2s; }
-  .stagger > :nth-child(6) { animation-delay: 0.25s; }
-  .stagger > :nth-child(7) { animation-delay: 0.3s; }
-  .stagger > :nth-child(8) { animation-delay: 0.35s; }
-  .stagger > :nth-child(n + 9) { animation-delay: 0.4s; }
+  html[data-intro] .stagger > :nth-child(2) { animation-delay: 0.05s; }
+  html[data-intro] .stagger > :nth-child(3) { animation-delay: 0.1s; }
+  html[data-intro] .stagger > :nth-child(4) { animation-delay: 0.15s; }
+  html[data-intro] .stagger > :nth-child(5) { animation-delay: 0.2s; }
+  html[data-intro] .stagger > :nth-child(6) { animation-delay: 0.25s; }
+  html[data-intro] .stagger > :nth-child(7) { animation-delay: 0.3s; }
+  html[data-intro] .stagger > :nth-child(8) { animation-delay: 0.35s; }
+  html[data-intro] .stagger > :nth-child(n + 9) { animation-delay: 0.4s; }
 
   .text-link {
     text-decoration: underline;
@@ -198,7 +199,7 @@
     padding: 14px max(16px, calc((100% - 640px) / 2));
     background: var(--background);
   }
-  .crumbs-bar > * {
+  html[data-intro] .crumbs-bar > * {
     animation: stagger-in 0.5s ease both;
   }
 
@@ -213,6 +214,36 @@
     font-weight: 600;
     line-height: 28px;
     margin: 64px 0 20px;
+  }
+
+  /* Main page projects: rows split by a thin line. Hovering one row fades
+     the text of the others; the lines stay put. */
+  .project-list > li + li {
+    border-top: 1px solid var(--border);
+  }
+  .project-row {
+    display: flex;
+    flex-direction: column;
+    padding: 12px 0;
+    transition: opacity 0.15s;
+  }
+  .project-list > li:first-child .project-row {
+    padding-top: 0;
+  }
+  .project-list > li:last-child .project-row {
+    padding-bottom: 0;
+  }
+  @media (min-width: 640px) {
+    .project-row {
+      flex-direction: row;
+      justify-content: space-between;
+      gap: 16px;
+    }
+  }
+  @media (hover: hover) {
+    .project-list:has(.project-row:hover) .project-row:not(:hover) {
+      opacity: 0.4;
+    }
   }
 
   .case h1 {
@@ -252,6 +283,75 @@
     margin: 24px 0 28px;
   }
 
+  .media-frame {
+    overflow: hidden;
+    border-radius: 14px;
+    background: #f5f5f5;
+  }
+  .media-frame img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .media-frame-video {
+    display: flex;
+    justify-content: center;
+    padding: 40px 24px;
+  }
+  /* Single phone screens, video or image, all show at one size: 280 x 570. */
+  .media-frame-video video,
+  .media-frame-video img {
+    display: block;
+    width: 280px;
+    max-width: 100%;
+    height: auto;
+    aspect-ratio: 393 / 800;
+    object-fit: cover;
+    object-position: top;
+    border-radius: 32px;
+    box-shadow: 0 16px 48px rgba(18, 18, 18, 0.14);
+  }
+
+  /* Comparison images: side by side on wider screens, stacked on phones. */
+  .media-phone-only {
+    display: none;
+  }
+  .media-stack {
+    gap: 8px;
+  }
+  @media (max-width: 560px) {
+    .media-wide-only {
+      display: none;
+    }
+    span.media-phone-only {
+      display: inline;
+    }
+    .media-stack.media-phone-only {
+      display: grid;
+    }
+  }
+
+  /* For images with built-in space around the artwork: crop it away on phones. */
+  @media (max-width: 560px) {
+    .media-frame-crop img {
+      width: 148%;
+      max-width: none;
+      margin: -8.5% 0 -8.5% -24%;
+    }
+    .media-frame-crop-wide img {
+      width: 128%;
+      max-width: none;
+      margin: -7% 0 -7% -14%;
+    }
+  }
+  .case figcaption {
+    margin-top: 8px;
+    text-align: center;
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--muted-foreground);
+  }
+
   .slot {
     display: flex;
     flex-direction: column;
@@ -277,19 +377,6 @@
     max-width: 100%;
     height: 480px;
   }
-  .slot-wide {
-    width: 100%;
-    height: 300px;
-  }
-  .slot-card {
-    width: 100%;
-    height: 170px;
-  }
-  .slot-pair {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
 
   .toc {
     display: none;
@@ -298,10 +385,12 @@
     align-self: start;
     position: sticky;
     top: 93px;
-    animation: stagger-in 0.5s ease 0.1s both;
     width: 220px;
     font-size: 14px;
     line-height: 19px;
+  }
+  html[data-intro] .toc {
+    animation: stagger-in 0.5s ease 0.1s both;
   }
   .toc a {
     display: block;
@@ -329,9 +418,9 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .stagger > *,
-    .crumbs-bar > *,
-    .toc {
+    html[data-intro] .stagger > *,
+    html[data-intro] .crumbs-bar > *,
+    html[data-intro] .toc {
       animation: none;
     }
   }
